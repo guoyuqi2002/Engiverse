@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>易智唯思 - 用户登录</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 400px; margin: auto; }
+    h2 { text-align: center; }
+    form { display: flex; flex-direction: column; gap: 15px; }
+    input { padding: 10px; font-size: 16px; }
+    button { padding: 10px; font-size: 16px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+    button:disabled { background-color: #999; cursor: not-allowed; }
+    .back-btn { margin-top: 10px; text-align: center; }
+    .back-btn a { text-decoration: none; color: #007bff; }
+  </style>
+</head>
+<body>
+  <h2>用户登录</h2>
+  <form id="loginForm">
+    <input type="text" id="username" placeholder="请输入用户名" required />
+    <input type="password" id="password" placeholder="请输入密码" required />
+    <button type="submit">登录</button>
+  </form>
+  <div class="back-btn">
+    <a href="index.html">返回登录/注册选择页</a>
+  </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    form.addEventListener('submit', function(event) {
+      event.preventDefault(); // 阻止默认提交
+
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      if (!username || !password) {
+        alert('请输入用户名和密码');
+        return;
+      }
+
+      // 简单模拟登录成功，跳转到指定网站
+      // 这里可以加后台验证逻辑（如果有服务器的话）
+      window.location.href = 'https://www.ai-engiverse.com/';
+    });
+  </script>
+</body>
+</html>
