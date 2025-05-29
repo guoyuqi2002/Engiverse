@@ -2,129 +2,67 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>易智唯思商业合作联系表</title>
+  <title>导出合并数据</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <style>
     body {
-      font-family: "Arial", sans-serif;
-      background-color: #f9f9f9;
+      font-family: sans-serif;
       padding: 40px;
       max-width: 600px;
       margin: auto;
     }
-
-    h1 {
-      color: #333;
-      font-size: 28px;
-    }
-
-    h2 {
-      color: #666;
-      font-size: 16px;
-      font-weight: normal;
-      margin-bottom: 30px;
-    }
-
-    form {
-      display: flex;
-      flex-direction: column;
-    }
-
-    label {
-      margin-top: 15px;
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-
-    input, textarea {
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    textarea {
-      resize: vertical;
-    }
-
     button {
-      margin-top: 30px;
-      padding: 12px;
+      padding: 12px 20px;
       font-size: 16px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
+      margin-bottom: 20px;
       cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    .thank-you {
-      display: none;
-      margin-top: 40px;
-      font-size: 16px;
-      color: #444;
-      line-height: 1.6;
     }
   </style>
 </head>
 <body>
-  <h1>易智唯思商业合作联系表</h1>
-  <h2>感谢您对易智唯思（Engiverse）的关注与支持。</h2>
-
-  <form id="cooperationForm">
-    <label for="name">姓名：</label>
-    <input type="text" id="name" name="name" required />
-
-    <label for="company">企业名：</label>
-    <input type="text" id="company" name="company" required />
-
-    <label for="phone">联系方式（手机号）：</label>
-    <input type="tel" id="phone" name="phone" required />
-
-    <label for="email">邮箱：（选填）</label>
-    <input type="email" id="email" name="email" />
-
-    <label for="wechat">微信号：（选填）</label>
-    <input type="text" id="wechat" name="wechat" />
-
-    <label for="business">具体业务需求：（选填）</label>
-    <textarea id="business" name="business" rows="4"></textarea>
-
-    <button type="submit">提交</button>
-  </form>
-
-  <div class="thank-you" id="thankYou">
-    <p><strong>问卷到此结束，感谢您对易智唯思的支持！</strong></p>
-    <p>我们的工作人员将在 1-3 个工作日内进行答复。</p>
-  </div>
+  <h1>导出注册 + 合作数据</h1>
+  <button onclick="exportMerged('xlsx')">导出为 Excel (.xlsx)</button>
+  <button onclick="exportMerged('csv')">导出为 CSV (.csv)</button>
 
   <script>
-    const form = document.getElementById("cooperationForm");
-    const thankYou = document.getElementById("thankYou");
+    function exportMerged(format) {
+      const users = JSON.parse(localStorage.getItem("users") || "[]").map(item => ({
+        source: "register",
+        ...item
+      }));
+      const cooperation = JSON.parse(localStorage.getItem("cooperationForms") || "[]").map(item => ({
+        source: "cooperation",
+        ...item
+      }));
 
-    form.addEventListener("submit", function(event) {
-      event.preventDefault();
+      const combined = [...users, ...cooperation];
 
-      const data = {
-        name: form.name.value.trim(),
-        company: form.company.value.trim(),
-        phone: form.phone.value.trim(),
-        email: form.email.value.trim(),
-        wechat: form.wechat.value.trim(),
-        business: form.business.value.trim()
-      };
+      if (combined.length === 0) {
+        alert("没有可导出的数据");
+        return;
+      }
 
-      let records = JSON.parse(localStorage.getItem("cooperationForms") || "[]");
-      records.push(data);
-      localStorage.setItem("cooperationForms", JSON.stringify(records));
+      // 找出所有字段（包括缺失字段）
+      const allKeys = Array.from(
+        new Set(combined.flatMap(Object.keys))
+      );
 
-      form.style.display = "none";
-      thankYou.style.display = "block";
-    });
+      // 统一字段顺序，补全缺失字段为空
+      const normalized = combined.map(item => {
+        const row = {};
+        allKeys.forEach(key => {
+          row[key] = item[key] ?? "";
+        });
+        return row;
+      });
+
+      const ws = XLSX.utils.json_to_sheet(normalized);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "合并数据");
+
+      const filename = "注册与合作数据." + format;
+      XLSX.writeFile(wb, filename, { bookType: format });
+    }
   </script>
 </body>
 </html>
