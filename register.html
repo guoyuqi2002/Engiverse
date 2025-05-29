@@ -35,6 +35,43 @@
     </form>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    document.getElementById("getCode").addEventListener("click", function () {
+      alert("验证码已发送！（模拟）");
+    });
+
+    document.getElementById("registerForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const form = e.target;
+      const username = form.username.value.trim();
+      const password = form.password.value;
+      const confirmPassword = form.confirmPassword.value;
+      const phone = form.phone.value.trim();
+      const smsCode = form.smsCode.value.trim();
+      const company = form.company.value.trim();
+
+      if (password !== confirmPassword) {
+        alert("两次密码输入不一致！");
+        return;
+      }
+
+
+      let users = JSON.parse(localStorage.getItem("users") || "[]");
+
+      if (users.some(user => user.username === username)) {
+        alert("用户名已存在，请更换用户名！");
+        return;
+      }
+
+      users.push({ username, password, phone, smsCode, company });
+
+      localStorage.setItem("users", JSON.stringify(users));
+
+      alert("注册成功，信息已保存到浏览器本地！");
+
+      form.reset();
+    });
+  </script>
 </body>
 </html>
