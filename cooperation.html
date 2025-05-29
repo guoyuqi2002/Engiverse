@@ -107,7 +107,21 @@
     const thankYou = document.getElementById("thankYou");
 
     form.addEventListener("submit", function(event) {
-      event.preventDefault(); // 阻止默认提交行为
+      event.preventDefault();
+
+      const data = {
+        name: form.name.value.trim(),
+        company: form.company.value.trim(),
+        phone: form.phone.value.trim(),
+        email: form.email.value.trim(),
+        wechat: form.wechat.value.trim(),
+        business: form.business.value.trim()
+      };
+
+      let records = JSON.parse(localStorage.getItem("cooperationForms") || "[]");
+      records.push(data);
+      localStorage.setItem("cooperationForms", JSON.stringify(records));
+
       form.style.display = "none";
       thankYou.style.display = "block";
     });
